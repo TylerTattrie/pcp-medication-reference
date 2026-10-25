@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#183b36">
+  <meta name="description" content="A personal PCP medication study reference.">
+  <title>PCP Med Reference</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <script src="medications-data.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">+</div>
+      <div>
+        <h1>PCP Med Reference</h1>
+        <p>Your medication study companion</p>
+      </div>
+    </div>
+    <span class="offline-status" id="connection-status">Checking connection…</span>
+  </header>
+
+  <main class="container">
+    <section class="welcome">
+      <p class="eyebrow">STUDY • REVIEW • PRACTISE</p>
+      <h2>Your medications, all in one place.</h2>
+      <p>Search your drug cards, build a study list, and practise your knowledge.</p>
+    </section>
+
+    <section class="search-section">
+      <label for="med-search">Search medications</label>
+      <input
+        id="med-search"
+        type="search"
+        placeholder="Try a medication name or classification…"
+        autocomplete="off"
+      >
+    </section>
+
+    <nav class="tabs" aria-label="Main sections">
+      <button class="tab active" data-view="medications">Medications</button>
+      <button class="tab" data-view="study-list">My Study List <span id="study-count">0</span></button>
+      <button class="tab" data-view="quiz">Practice Quiz</button>
+    </nav>
+
+    <section id="medication-view">
+      <div class="section-heading">
+        <h2 id="list-heading">Medication Library</h2>
+        <span id="result-count"></span>
+      </div>
+      <div id="medication-list" class="medication-grid"></div>
+      <p id="empty-message" class="empty-message" hidden>No matching medications found.</p>
+    </section>
+
+    <section id="detail-view" hidden>
+      <button id="back-button" class="back-button">← Back to medications</button>
+      <article id="medication-detail" class="detail-card"></article>
+    </section>
+
+    <section id="quiz-view" hidden>
+      <div class="section-heading">
+        <h2>Practice Quiz</h2>
+      </div>
+      <div id="quiz-content" class="quiz-card"></div>
+    </section>
+
+    <footer>
+      <p>Personal study aid • Always follow current protocols and medical direction.</p>
+    </footer>
+  </main>
+</body>
+</html>

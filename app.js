@@ -1,0 +1,348 @@
+// PCP Med Reference app logic
+// Medication records are loaded from medications-data.js.
+
+const medications = Array.isArray(window.PCP_MEDICATIONS)
+  ? window.PCP_MEDICATIONS
+  : [];
+
+const $ = (selector) => document.querySelector(selector);
+
+const medicationList = $("#medication-list");
+const detailView = $("#detail-view");
+const medicationView = $("#medication-view");
+const quizView = $("#quiz-view");
+const searchInput = $("#med-search");
+
+let currentView = "medications";
+let activeMedicationId = null;
+let quizQuestions = [];
+let quizIndex = 0;
+let quizScore = 0;
+let answered = false;
+
+const STORAGE_KEY = "pcp-med-reference-study-list-v2";
+
+function loadStudyList() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored !== null) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(id => medications.some(med => med.id === id));
+      }
+    }
+  } catch (error) {
+    console.warn("Could not load saved study list:", error);
+  }
+
+  return medications.filter(med => med.studyList).map(med => med.id);
+}
+
+let studyList = loadStudyList();
+
+function saveStudyList() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(studyList));
+  } catch {
+    alert("Your browser could not save the study list on this device.");
+  }
+  updateStudyCount();
+}
+
+function updateStudyCount() {
+  $("#study-count").textContent = studyList.length;
+}
+
+function escapeHTML(value = "") {
+  return String(value).replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+}
+
+function renderMedications() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  let results = medications.filter(med => {
+    const searchable = [
+      med.name,
+      med.otherNames,
+      med.classifications,
+      med.indications,
+      med.keywords
+    ].join(" ").toLowerCase();
+
+    return searchable.includes(query);
+  });
+
+  if (currentView === "study-list") {
+    results = results.filter(med => studyList.includes(med.id));
+  }
+
+  $("#list-heading").textContent =
+    currentView === "study-list" ? "My Study List" : "Medication Library";
+
+  $("#result-count").textContent =
+    `${results.length} medication${results.length === 1 ? "" : "s"}`;
+  $("#empty-message").hidden = results.length !== 0;
+
+  medicationList.innerHTML = results.map(med => `
+    <article class="medication-card">
+      <h3>${escapeHTML(med.name)}</h3>
+      ${med.otherNames ? `<p>Also known as: ${escapeHTML(med.otherNames)}</p>` : ""}
+      <p>${escapeHTML(med.classifications || "Classification not entered")}</p>
+      <p class="card-description">${escapeHTML(med.indications || "No indications entered.")}</p>
+      <div class="card-actions">
+        <button class="primary-button" data-open="${escapeHTML(med.id)}">
+          View drug card
+        </button>
+        <button class="bookmark-button" data-save="${escapeHTML(med.id)}">
+          ${studyList.includes(med.id) ? "★ Saved" : "☆ Save"}
+        </button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function detailField(label, value) {
+  if (!value || !String(value).trim()) return "";
+  return `
+    <section>
+      <h3>${escapeHTML(label)}</h3>
+      <p>${escapeHTML(value)}</p>
+    </section>
+  `;
+}
+
+function showDetail(id) {
+  const med = medications.find(item => item.id === id);
+  if (!med) return;
+
+  activeMedicationId = id;
+  medicationView.hidden = true;
+  quizView.hidden = true;
+  detailView.hidden = false;
+  searchInput.closest(".search-section").hidden = true;
+  $(".tabs").hidden = true;
+
+  $("#medication-detail").innerHTML = `
+    ${med.image ? `<img class="detail-image" src="${escapeHTML(med.image)}" alt="${escapeHTML(med.name)}">` : ""}
+    <h2>${escapeHTML(med.name)}</h2>
+    ${med.otherNames ? `<p><strong>Other names:</strong> ${escapeHTML(med.otherNames)}</p>` : ""}
+    <button class="bookmark-button" data-save="${escapeHTML(med.id)}">
+      ${studyList.includes(med.id) ? "★ Remove from study list" : "☆ Add to study list"}
+    </button>
+    ${detailField("Classifications", med.classifications)}
+    ${detailField("Mechanism of action", med.mechanism)}
+    ${detailField("Indications", med.indications)}
+    ${detailField("Contraindications", med.contraindications)}
+    ${detailField("Precautions", med.precautions)}
+    ${detailField("Adverse effects", med.adverseEffects)}
+    ${detailField("Dose", med.dosage)}
+    ${detailField("Routes", med.routes)}
+    ${detailField("Special notes", med.specialNotes)}
+    ${detailField("Keywords", med.keywords)}
+    <a class="pronunciation-link" href="${escapeHTML(med.pronunciation)}"
+      target="_blank" rel="noopener noreferrer">🔊 Find pronunciation on YouTube</a>
+    <p><small>Study aid only. Verify medication information against your current course materials and applicable PCP protocols.</small></p>
+  `;
+}
+
+function closeDetail() {
+  activeMedicationId = null;
+  detailView.hidden = true;
+  searchInput.closest(".search-section").hidden = false;
+  $(".tabs").hidden = false;
+  showView(currentView);
+}
+
+function showView(view) {
+  currentView = view;
+  detailView.hidden = true;
+  medicationView.hidden = view === "quiz";
+  quizView.hidden = view !== "quiz";
+  searchInput.closest(".search-section").hidden = false;
+  $(".tabs").hidden = false;
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.view === view);
+  });
+
+  if (view === "quiz") {
+    startQuiz();
+  } else {
+    renderMedications();
+  }
+}
+
+function toggleStudyList(id) {
+  if (studyList.includes(id)) {
+    studyList = studyList.filter(item => item !== id);
+  } else {
+    studyList.push(id);
+  }
+
+  saveStudyList();
+
+  if (activeMedicationId) {
+    showDetail(activeMedicationId);
+  } else {
+    renderMedications();
+  }
+}
+
+function shuffle(array) {
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function buildQuizQuestions() {
+  const usable = medications.filter(med => med.classifications.trim());
+  const chosen = shuffle(usable).slice(0, Math.min(5, usable.length));
+
+  return chosen.map(med => {
+    const correct = med.classifications.split(",")[0].trim();
+    const distractors = shuffle(
+      [...new Set(usable
+        .filter(other => other.id !== med.id)
+        .map(other => other.classifications.split(",")[0].trim())
+        .filter(value => value && value !== correct))]
+    ).slice(0, 3);
+
+    const options = shuffle([...new Set([correct, ...distractors])]).slice(0, 4);
+
+    return {
+      question: `Which classification is listed first for ${med.name}?`,
+      options,
+      answer: options.indexOf(correct),
+      explanation: `Your spreadsheet lists: ${med.classifications}.`
+    };
+  });
+}
+
+function startQuiz() {
+  quizQuestions = buildQuizQuestions();
+  quizIndex = 0;
+  quizScore = 0;
+  answered = false;
+
+  if (quizQuestions.length === 0) {
+    $("#quiz-content").innerHTML = "<p>No medication classifications are available for quiz questions yet.</p>";
+    return;
+  }
+  renderQuiz();
+}
+
+function renderQuiz() {
+  if (quizIndex >= quizQuestions.length) {
+    $("#quiz-content").innerHTML = `
+      <h3>Quiz complete!</h3>
+      <p>You scored ${quizScore} out of ${quizQuestions.length}.</p>
+      <button class="primary-button" id="restart-quiz">Try again</button>
+    `;
+    return;
+  }
+
+  const q = quizQuestions[quizIndex];
+
+  $("#quiz-content").innerHTML = `
+    <p class="eyebrow">QUESTION ${quizIndex + 1} OF ${quizQuestions.length}</p>
+    <h3>${escapeHTML(q.question)}</h3>
+    <div>
+      ${q.options.map((option, index) => `
+        <button class="quiz-option" data-answer="${index}">
+          ${escapeHTML(option)}
+        </button>
+      `).join("")}
+    </div>
+    <p id="quiz-feedback" class="quiz-feedback" aria-live="polite"></p>
+    <button class="primary-button" id="next-question" hidden>
+      ${quizIndex === quizQuestions.length - 1 ? "See results" : "Next question"}
+    </button>
+  `;
+}
+
+document.addEventListener("click", event => {
+  const tab = event.target.closest("[data-view]");
+  if (tab) {
+    showView(tab.dataset.view);
+    return;
+  }
+
+  const openButton = event.target.closest("[data-open]");
+  if (openButton) {
+    showDetail(openButton.dataset.open);
+    return;
+  }
+
+  const saveButton = event.target.closest("[data-save]");
+  if (saveButton) {
+    toggleStudyList(saveButton.dataset.save);
+    return;
+  }
+
+  if (event.target.closest("#back-button")) {
+    closeDetail();
+    return;
+  }
+
+  const answerButton = event.target.closest("[data-answer]");
+  if (answerButton && !answered) {
+    answered = true;
+    const q = quizQuestions[quizIndex];
+    const selectedAnswer = Number(answerButton.dataset.answer);
+    const correct = selectedAnswer === q.answer;
+
+    if (correct) quizScore++;
+
+    $("#quiz-feedback").textContent =
+      `${correct ? "Correct!" : "Not quite."} ${q.explanation}`;
+
+    document.querySelectorAll("[data-answer]").forEach(button => {
+      button.disabled = true;
+    });
+
+    $("#next-question").hidden = false;
+    return;
+  }
+
+  if (event.target.closest("#next-question")) {
+    quizIndex++;
+    answered = false;
+    renderQuiz();
+    return;
+  }
+
+  if (event.target.closest("#restart-quiz")) {
+    startQuiz();
+  }
+});
+
+searchInput.addEventListener("input", renderMedications);
+
+function updateConnectionStatus() {
+  $("#connection-status").textContent = navigator.onLine
+    ? "Online"
+    : "Offline mode";
+}
+
+window.addEventListener("online", updateConnectionStatus);
+window.addEventListener("offline", updateConnectionStatus);
+
+updateStudyCount();
+updateConnectionStatus();
+renderMedications();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => console.error("Service worker registration failed:", error));
+  });
+}

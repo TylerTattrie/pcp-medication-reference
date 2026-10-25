@@ -1,0 +1,370 @@
+
+:root {
+  --green: #183b36;
+  --green-light: #e5efeb;
+  --green-mid: #315e53;
+  --background: #f4f6f4;
+  --surface: #ffffff;
+  --text: #202a27;
+  --muted: #68756f;
+  --border: #dce4df;
+  --accent: #d8e8df;
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px max(22px, calc((100% - 1000px) / 2));
+  background: var(--green);
+  color: white;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: white;
+  color: var(--green);
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.brand p {
+  margin: 2px 0 0;
+  color: #d4e2dc;
+  font-size: 13px;
+}
+
+.offline-status {
+  font-size: 12px;
+  color: #d4e2dc;
+  text-align: right;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 22px 40px;
+}
+
+.welcome {
+  padding: 24px 0 28px;
+}
+
+.eyebrow {
+  color: var(--green-mid);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.welcome h2 {
+  max-width: 620px;
+  margin: 8px 0;
+  font-size: clamp(27px, 5vw, 39px);
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+
+.welcome > p:last-child {
+  max-width: 570px;
+  color: var(--muted);
+}
+
+.search-section {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.search-section label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  outline: none;
+}
+
+.search-section input:focus {
+  border-color: var(--green-mid);
+  box-shadow: 0 0 0 3px var(--green-light);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab {
+  flex-shrink: 0;
+  padding: 12px 14px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.tab.active {
+  border-bottom-color: var(--green);
+  color: var(--green);
+}
+
+#study-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  margin-left: 3px;
+  border-radius: 20px;
+  background: var(--green-light);
+  font-size: 11px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+#result-count {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.medication-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.medication-card,
+.detail-card,
+.quiz-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 3px 12px rgb(22 48 37 / 4%);
+}
+
+.medication-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 18px;
+}
+
+.medication-card h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.medication-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.medication-card .card-description {
+  margin-top: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.primary-button,
+.secondary-button,
+.back-button,
+.bookmark-button {
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-weight: 650;
+}
+
+.primary-button {
+  background: var(--green);
+  color: white;
+}
+
+.secondary-button,
+.back-button,
+.bookmark-button {
+  background: white;
+  color: var(--green);
+}
+
+.back-button {
+  margin-bottom: 16px;
+}
+
+.detail-card,
+.quiz-card {
+  padding: clamp(18px, 4vw, 28px);
+}
+
+.detail-card h2 {
+  margin-top: 0;
+  font-size: 27px;
+}
+
+.detail-card h3 {
+  margin: 25px 0 6px;
+  font-size: 16px;
+}
+
+.detail-card p {
+  white-space: pre-line;
+}
+
+.detail-image {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  max-height: 240px;
+  object-fit: contain;
+  margin: 0 auto 20px;
+  border-radius: 12px;
+  background: var(--background);
+}
+
+.pronunciation-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--green-mid);
+  font-weight: 700;
+}
+
+.quiz-option {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  margin: 10px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  text-align: left;
+}
+
+.quiz-option:hover {
+  background: var(--green-light);
+}
+
+.quiz-feedback {
+  margin-top: 14px;
+  font-weight: 700;
+}
+
+.empty-message {
+  padding: 24px 0;
+  color: var(--muted);
+}
+
+footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    align-items: flex-start;
+    padding: 16px;
+  }
+
+  .brand h1 {
+    font-size: 16px;
+  }
+
+  .brand p {
+    font-size: 12px;
+  }
+
+  .brand-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .container {
+    padding: 18px 15px 30px;
+  }
+
+  .welcome {
+    padding-top: 20px;
+  }
+
+  .medication-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .offline-status {
+    max-width: 95px;
+  }
+}
