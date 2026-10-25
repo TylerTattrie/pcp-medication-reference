@@ -89,8 +89,36 @@ function renderMedications() {
     `${results.length} medication${results.length === 1 ? "" : "s"}`;
   $("#empty-message").hidden = results.length !== 0;
 
+  const medicationIcons = {
+  "Acetaminophen": "Tablet.svg",
+  "Acetylsalicylic Acid": "Tablet.svg",
+  "Ibuprofen": "Tablet.svg",
+  "D50W": "IVBag.svg",
+  "Dimenhydrinate": "Syringe.svg",
+  "Diphenhydramine": "Syringe.svg",
+  "Epinephrine": "Syringe.svg",
+  "Glucagon": "Syringe.svg",
+  "Ketorolac": "Syringe.svg",
+  "Metoclopramide": "Syringe.svg",
+  "Naloxone": "Syringe.svg",
+  "Nitroglycerin": "Syringe.svg",
+  "Ondansetron": "Syringe.svg",
+  "Ipratropium Bromide": "Inhaler.svg",
+  "Salbutamol": "Inhaler.svg",
+  "Nitrous Oxide": "Oxygen.svg",
+  "Oxygen": "Oxygen.svg",
+  "Oral Glucose": "Buccal.svg",
+  "Tetracaine": "Eyedrops.svg"
+};
   medicationList.innerHTML = results.map(med => `
     <article class="medication-card">
+  ${medicationIcons[med.name] ? `
+    <img
+      class="medication-icon"
+      src="MedicationImages/${medicationIcons[med.name]}"
+      alt=""
+    >
+  ` : ""}
       <h3>${escapeHTML(med.name)}</h3>
       ${med.otherNames ? `<p>Also known as: ${escapeHTML(med.otherNames)}</p>` : ""}
       <p>${escapeHTML(med.classifications || "Classification not entered")}</p>
@@ -203,44 +231,93 @@ function shuffle(array) {
   return copy;
 }
 
+
+
 function buildQuizQuestions() {
-  const usable = medications.filter(med => med.classifications.trim());
-  const chosen = shuffle(usable).slice(0, Math.min(5, usable.length));
+  // Only use medications saved to the Study List
+  const usable = medications.filter(med =>
+    studyList.includes(med.id)
+  );
 
-  return chosen.map(med => {
-    const correct = med.classifications.split(",")[0].trim();
-    const distractors = shuffle(
-      [...new Set(usable
-        .filter(other => other.id !== med.id)
-        .map(other => other.classifications.split(",")[0].trim())
-        .filter(value => value && value !== correct))]
-    ).slice(0, 3);
+  const fields = [
+    { key: "classifications", label: "classifications" },
+    { key: "mechanism", label: "mechanism of action" },
+    { key: "indications", label: "indications" },
+    { key: "contraindications", label: "contraindications" },
+    { key: "dosage", label: "dose" }
+  ];
 
-    const options = shuffle([...new Set([correct, ...distractors])]).slice(0, 4);
+  // Use every medication for answer choices,
+  // but quiz only medications saved to the Study List.
+  const allMedications = medications;
+  const questions = [];
 
-    return {
-      question: `Which classification is listed first for ${med.name}?`,
-      options,
-      answer: options.indexOf(correct),
-      explanation: `Your spreadsheet lists: ${med.classifications}.`
-    };
+  shuffle(usable).forEach(med => {
+    fields.forEach(field => {
+      const rawValue = med[field.key];
+      const correctAnswer =
+        rawValue && String(rawValue).trim()
+          ? String(rawValue).trim()
+          : "Information not entered";
+
+      // Find answer choices from the same field in other saved medications
+      const distractors = shuffle(
+        [...new Set(
+          allMedications
+            .filter(other => other.id !== med.id)
+            .map(other => other[field.key])
+            .filter(value => value && String(value).trim())
+            .map(value => String(value).trim())
+            .filter(value => value !== correctAnswer)
+        )]
+      ).slice(0, 3);
+
+      const options = shuffle(
+        [...new Set([correctAnswer, ...distractors])]
+      );
+
+      questions.push({
+        question: `What ${field.label} are listed for ${med.name}?`,
+        options,
+        answer: options.indexOf(correctAnswer),
+        explanation: `Drug-card information: ${correctAnswer}.`
+      });
+    });
   });
+
+  return questions;
 }
 
+
+
 function startQuiz() {
+  const savedMeds = medications.filter(med =>
+    studyList.includes(med.id)
+  );
+
+  console.log("Study list count:", studyList.length);
+  console.log("Saved medications:", savedMeds.map(med => med.name));
+
   quizQuestions = buildQuizQuestions();
   quizIndex = 0;
   quizScore = 0;
   answered = false;
 
-  if (quizQuestions.length === 0) {
-    $("#quiz-content").innerHTML = "<p>No medication classifications are available for quiz questions yet.</p>";
-    return;
-  }
+if (quizQuestions.length === 0) {
+  $("#quiz-content").innerHTML =
+    "<p>Add medications to your Study List to generate quiz questions.</p>";
+  return;
+}
+
   renderQuiz();
 }
 
 function renderQuiz() {
+  const savedNames = medications
+    .filter(med => studyList.includes(med.id))
+    .map(med => med.name)
+    .join(", ");
+
   if (quizIndex >= quizQuestions.length) {
     $("#quiz-content").innerHTML = `
       <h3>Quiz complete!</h3>
@@ -251,8 +328,9 @@ function renderQuiz() {
   }
 
   const q = quizQuestions[quizIndex];
-
+console.log("Saved medications:", savedNames);
   $("#quiz-content").innerHTML = `
+    
     <p class="eyebrow">QUESTION ${quizIndex + 1} OF ${quizQuestions.length}</p>
     <h3>${escapeHTML(q.question)}</h3>
     <div>

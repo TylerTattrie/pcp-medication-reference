@@ -2,7 +2,7 @@
 window.PCP_MEDICATIONS = [
   {
     "id": "aceteminophen",
-    "name": "Aceteminophen",
+    "name": "Acetaminophen",
     "otherNames": "Tylenol, Tempra",
     "classifications": "Analgesic, Antipyretic",
     "mechanism": "Inhibits prostaglandin synthesis which produces analgesic effect.  \n\nLess effect on cyclooxygenase therefore very little anti-inflammatory properties.\n\nActs on the hypothalamic heat regulating center.",
@@ -14,14 +14,14 @@ window.PCP_MEDICATIONS = [
     "routes": "PO",
     "specialNotes": "- Acetaminophen and ibuprofen should be administered together for pain management whenever possible.\n\n- Not appropriate for treatment of hyperthermia with an environmental or toxicological cause.\n\n- When using the 80 mg/mL oral suspension for pediatrics, a dose of 15 mg/kg should be used.\n\n- If pediatric patient can swallow tablets and appropriate dose is at least 325 mg, acetaminophen tablets can be administered (titrate dose to closest multiple of 325 mg).\n\n- More than 600 medications contain acetaminophen. The following lists a few that are commonly purchased over the counter or prescribed:\nTylenol brand products, Endocet, Fioricet, Percocet, Tylenol with Codeine, Sudafed, Sinutab, Midol, NyQuil, Robitussin, Excedrin, Dayquil, Dristan, Cepacol.\n\n- Pregnancy category B [if there is a clinical need for it, Category B drugs are considered safe to use]",
     "keywords": "Pain, Fever",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Tablet.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Aceteminophen%20pronunciation"
   },
   {
     "id": "acetylsalicyclic-acid",
-    "name": "Acetylsalicyclic Acid",
+    "name": "Acetylsalicylic Acid",
     "otherNames": "ASA, Aspirin",
     "classifications": "Antiplatelet, NSAID, Antipyretic, Analgesic, Anti-Inflammatory",
     "mechanism": "Inactivates cyclooxygenase (COX) enzyme which decreases the production of prostaglandins in the tissue, blocking the pain receptors sensitivity and decreases inflammation. Due to this inactivation of COX, thromboxane A2 production is also inhibited, which is responsible for platelet aggregation",
@@ -33,7 +33,7 @@ window.PCP_MEDICATIONS = [
     "routes": "PO",
     "specialNotes": "- If the patient confirms they have self-administered ASA at the direction of the MCC call taker, additional administration of ASA is not required.\nIf a patient has taken their prescribed low dose ASA, administer an additional 160 mg of ASA.\n\n- Giving ASA to children or teenagers with a viral illness can cause Reye’s Syndrome.\n\n- Pregnancy category D [potential benefits may warrant use of the drug in pregnant women despite potential risks (e.g., if it is required in a life-threatening situation)].",
     "keywords": "Pain, Fever, Antiplatelet, Anti-inflammatory, NSAID",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Tablet.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Acetylsalicyclic%20Acid%20pronunciation"
@@ -52,7 +52,7 @@ window.PCP_MEDICATIONS = [
     "routes": "IV",
     "specialNotes": "To make a D25W solution from D50W: Dispose of 25 mL of the D50W solution from the preloaded syringe and replace with 25 mL of normal saline.\n\nOR\n\nDraw 25 mL of the D50W solution from the 50 mL vial using a 50 mL syringe and vial access spike, then add 25 mL of normal saline.",
     "keywords": "Blood glucose, Sugars, Carbohydrate, Hypoglycemia",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/IVBag.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=D50W%20pronunciation"
@@ -90,7 +90,7 @@ window.PCP_MEDICATIONS = [
     "routes": "IV, IM, IO",
     "specialNotes": "Pregnancy category B [if there is a clinical need for it, Category B drugs are considered safe to use].\nIt is preferred that pediatrics now receive a 2nd generation antihistamine like Reactine or Claritin if the parents have it on hand following epi.",
     "keywords": "Respiratory Difficulties, Nausea, Vomiting, Edema, Itching, Diarrhea",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Syringe.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Diphenhydramine%20pronunciation"
@@ -128,7 +128,7 @@ window.PCP_MEDICATIONS = [
     "routes": "IM/SQ",
     "specialNotes": "- Hypoglycemia for non-diabetic children is different.\n\n- Neonate < 2.5 mmol/L\n\n- Infant/Pediatric < 3.3 mmol/L\n\n- Supplementary carbohydrate should be given as soon as possible.\nGlucagon is very unlikely to work in a non-diabetic because the hypoglycemia is a result of depleted glucose stores, rather than too much insulin.\n\n- Consider consulting the Atlantic Canada Poison Centre in the setting of suspected overdose.\n\n- Though glucagon can be used as an antidote for beta-blocker overdose, it requires high doses which are most often unavailable in the pre-hospital setting.\n\n- Pregnancy category B [if there is a clinical need for it, Category B drugs are considered safe to use]",
     "keywords": "Blood glucose, Sugars, Hypoglycemia",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Syringe.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Glucagon%20pronunciation"
@@ -166,7 +166,7 @@ window.PCP_MEDICATIONS = [
     "routes": "PO",
     "specialNotes": "- Consider as second line therapy for management of fever (acetaminophen is the antipyretic of choice in most cases).\n\n- Not appropriate for treatment of hyperthermia with an environmental or toxicological cause.\n\n- Ibuprofen and acetaminophen should be administered together for pain management whenever possible.\n\n- If a pediatric patient can swallow tablets and the appropriate dose is at least 600 mg, ibuprofen tablets can be administered.\n\n- There are approximately 20 NSAID medications. The following lists a few that are commonly purchased over the counter or prescribed: ketorolac, celecoxib, naproxen, indomethacin, diclofenac, meloxicam\n\n- Pregnancy category B [if there is a clinical need for it, Category B drugs are considered safe to use]; it is a D in third trimester [potential benefits may warrant use of the drug in pregnant women despite potential risks (e.g., if it is required in a life-threatening situation)].",
     "keywords": "Pain, Fever, Anti-inflammatory",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Tablet.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Ibuprofen%20pronunciation"
@@ -204,7 +204,7 @@ window.PCP_MEDICATIONS = [
     "routes": "IM, IV",
     "specialNotes": "- Ketorolac can be given in conjunction with opioids and may reduce the amount of opioids a patient requires.\n\n- Provides an alternative to opioid analgesia in the appropriate context.\n\n- If the patient can swallow, and they are not vomiting, consider ibuprofen as a potential alternative.\n\n- Pregnancy category C [if the patient will benefit from a Category C drug, it is generally used]",
     "keywords": "Pain, NSAID",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Syringe.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Ketorolac%20pronunciation"
@@ -261,7 +261,7 @@ window.PCP_MEDICATIONS = [
     "routes": "SQ",
     "specialNotes": "- Nitroglycerin is not contraindicated for all inferior STEMIs, only inferior STEMIs with right ventricular involvement. Anytime ST elevation is noted in any one of the inferior leads (II, III or aVF), the V4 electrode should be moved to the 5th intercostal space on the patients’ right side to become V4R. After acquiring a modified 12 lead, if 1mm or more of ST elevation is noted in V4R nitroglycerin should not be administered.\n\n- It is important to check a blood pressure before and after nitroglycerin administration.\n\n- Hypotension may be more pronounced in a patient who has not previously taken nitroglycerin.\n\n- Pregnancy category C [if the patient will benefit from a Category C drug, it is generally used]",
     "keywords": "Chest pain, Angina relief, Heart",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Syringe.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Nitroglycerin%20pronunciation"
@@ -337,7 +337,7 @@ window.PCP_MEDICATIONS = [
     "routes": "MDI, NEB",
     "specialNotes": "- A spacer (holding chamber) should be used when administering by MDI directly to the patient (i.e., when not administering through the MDI adapter or port).\n\n- Salbutamol works to reduce bronchoconstriction in the lower airways; it is not indicated for patients with stridor, which is a sign of upper airway pathology.\n\n- When a patient has severe shortness of breath with hypoxia due to signs of bronchoconstriction (e.g., wheezing, or decreased air entry), there is no maximum dose of salbutamol.\n\n- Salbutamol may be used when a patient is wheezing with anaphylaxis AFTER the epinephrine is given.\n\n- Salbutamol often does not work in infants who are less than 1 year of age and should not be trialed unless the patient has life threatening distress.\nIf a patient has access to an MDI in the home, use the patient’s own supply.\n\n- Pregnancy category C [if the patient will benefit from a Category C drug, it is generally used]",
     "keywords": "Bronchoconstriction",
-    "studyList": true,
+    "studyList": false,
     "imagePath": "MedicationImages/Inhaler.svg",
     "image": "",
     "pronunciation": "https://www.youtube.com/results?search_query=Salbutamol%20pronunciation"
