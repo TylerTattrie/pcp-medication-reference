@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#183b36">
   <meta name="description" content="A personal PCP medication study reference.">
-  <title>PCP Med Reference 123 test</title>
+  <title>PCP Med Reference</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <script src="medications-data.js" defer></script>
@@ -25,17 +25,23 @@
 
   <main class="container">
     <section class="welcome">
-      <p class="eyebrow">STUDY • REVIEW • PRACTISE</p>
-      <h2>Your medications, all in one place.</h2>
-      <p>Search your drug cards, build a study list, and practise your knowledge.</p>
-    </section>
+  <p class="eyebrow">STUDY • REVIEW • PRACTISE</p>
+  <h2>Your medications, all in one place.</h2>
+  <p>Search your drug cards, build a study list, and practise your knowledge.</p>
+
+  <button id="install-button" class="primary-button" hidden>
+    ↓ Install App
+  </button>
+
+  <p id="install-help" hidden></p>
+</section>
 
     <section class="search-section">
       <label for="med-search">Search medications</label>
       <input
         id="med-search"
         type="search"
-        placeholder="Try a medication name or classification…"
+        placeholder="Search a medication name or classification…"
         autocomplete="off"
       >
     </section>

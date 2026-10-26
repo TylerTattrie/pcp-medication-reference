@@ -424,3 +424,54 @@ if ("serviceWorker" in navigator) {
       .catch(error => console.error("Service worker registration failed:", error));
   });
 }
+
+
+
+
+let deferredInstallPrompt;
+
+const installButton = document.getElementById("install-button");
+const installHelp = document.getElementById("install-help");
+
+function showInstallHelp(message) {
+  installHelp.textContent = message;
+  installHelp.hidden = false;
+}
+
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  installButton.hidden = false;
+});
+
+installButton.addEventListener("click", async () => {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+
+    const choice = await deferredInstallPrompt.userChoice;
+
+    if (choice.outcome === "accepted") {
+      installButton.hidden = true;
+      showInstallHelp("App installation started.");
+    }
+
+    deferredInstallPrompt = null;
+    return;
+  }
+
+  showInstallHelp(
+    "To install on iPhone or iPad: open this site in Safari, tap Share, then Add to Home Screen. On Mac Safari, use File > Add to Dock if available."
+  );
+});
+
+window.addEventListener("appinstalled", () => {
+  installButton.hidden = true;
+  showInstallHelp("PCP Med Reference is installed.");
+});
+
+if (window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true) {
+  installButton.hidden = true;
+} else {
+  installButton.hidden = false;
+}
