@@ -47,10 +47,11 @@
     </section>
 
     <nav class="tabs" aria-label="Main sections">
-      <button class="tab active" data-view="medications">Medications</button>
-      <button class="tab" data-view="study-list">My Study List <span id="study-count">0</span></button>
-      <button class="tab" data-view="quiz">Practice Quiz</button>
-    </nav>
+  <button class="tab active" data-view="medications">Medications</button>
+  <button class="tab" data-view="study-list">My Study List <span id="study-count">0</span></button>
+  <button class="tab" data-view="quiz">Practice Quiz</button>
+  <button class="tab" data-view="flashcards">Flashcards</button>
+</nav>
 
     <section id="medication-view">
       <div class="section-heading">
@@ -66,12 +67,90 @@
       <article id="medication-detail" class="detail-card"></article>
     </section>
 
-    <section id="quiz-view" hidden>
-      <div class="section-heading">
-        <h2>Practice Quiz</h2>
-      </div>
-      <div id="quiz-content" class="quiz-card"></div>
-    </section>
+<section id="quiz-view" hidden>
+  <div class="section-heading">
+    <h2>Practice Quiz</h2>
+  </div>
+  <div id="quiz-content" class="quiz-card"></div>
+</section>
+
+<section id="flashcards-view" hidden>
+  <div class="section-heading">
+    <h2>Flashcards</h2>
+    <p>Practise recalling your medication information.</p>
+  </div>
+
+  <div id="flashcards-content" class="quiz-card">
+  <h3>Choose what to study</h3>
+  <p>Flashcards will use medications in My Study List only.</p>
+
+  <div class="flashcard-options">
+    <label><input type="checkbox" value="otherNames" checked> Other names</label>
+    <label><input type="checkbox" value="classifications" checked> Classifications</label>
+    <label><input type="checkbox" value="mechanism" checked> Mechanism of action</label>
+    <label><input type="checkbox" value="indications" checked> Indications</label>
+    <label><input type="checkbox" value="contraindications" checked> Contraindications</label>
+    <label><input type="checkbox" value="adverseEffects" checked> Adverse effects</label>
+    <label><input type="checkbox" value="precautions" checked> Precautions</label>
+    <label><input type="checkbox" value="dosage" checked> Dosage</label>
+    <label><input type="checkbox" value="routes" checked> Routes</label>
+    
+    
+  </div>
+
+  <button id="start-flashcards" class="primary-button">
+    Start Flashcards
+  </button>
+  
+
+<div id="flashcard-study-area" hidden>
+  <div class="flashcard-progress" id="flashcard-progress"></div>
+  <div id="flashcard-stats" class="flashcard-stats"></div>
+
+  <div class="flashcard-face">
+    <p id="flashcard-question"></p>
+
+    <div id="flashcard-answer" hidden>
+      <hr>
+      <h3>Answer</h3>
+      <p id="flashcard-answer-text"></p>
+    </div>
+  </div>
+
+  
+<div class="flashcard-controls">
+  <button id="flashcard-show-answer" class="primary-button">
+    Show Answer
+  </button>
+
+  <div id="flashcard-rating" hidden>
+    <p>How well did you remember?</p>
+    <div class="flashcard-rating-buttons">
+      <button id="flashcard-need-practice" type="button">
+        Need Practice
+      </button>
+
+      <button id="flashcard-know-it" type="button">
+        Know It
+      </button>
+    </div>
+  </div>
+
+  
+<div class="flashcard-navigation">
+  <button id="flashcard-shuffle" type="button">Shuffle Cards</button>
+  <button id="flashcard-original-order" type="button">Original Order</button>
+  <button id="flashcard-previous" type="button">Previous</button>
+  <button id="flashcard-next" type="button">Next</button>
+</div>
+
+</div>
+
+</div>
+
+
+</div>
+</section>
 
     <footer>
       <p>Personal study aid • Always follow current protocols and medical direction.</p>

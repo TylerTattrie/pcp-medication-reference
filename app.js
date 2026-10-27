@@ -187,12 +187,16 @@ function closeDetail() {
   showView(currentView);
 }
 
+
 function showView(view) {
   currentView = view;
   detailView.hidden = true;
-  medicationView.hidden = view === "quiz";
+
+  medicationView.hidden = view === "quiz" || view === "flashcards";
   quizView.hidden = view !== "quiz";
-  searchInput.closest(".search-section").hidden = false;
+  document.getElementById("flashcards-view").hidden = view !== "flashcards";
+
+  searchInput.closest(".search-section").hidden = view === "flashcards";
   $(".tabs").hidden = false;
 
   document.querySelectorAll(".tab").forEach(tab => {
@@ -205,6 +209,7 @@ function showView(view) {
     renderMedications();
   }
 }
+
 
 function toggleStudyList(id) {
   if (studyList.includes(id)) {
@@ -475,3 +480,212 @@ if (window.matchMedia("(display-mode: standalone)").matches ||
 } else {
   installButton.hidden = false;
 }
+
+let flashcards = [];
+let originalFlashcards = [];
+let currentFlashcardIndex = 0;
+
+const flashcardCategories = {
+  classifications: "Classifications",
+  mechanism: "Mechanism of action",
+  indications: "Indications",
+  contraindications: "Contraindications",
+  dosage: "Dosage",
+  routes: "Routes",
+  adverseEffects: "Adverse effects",
+  precautions: "Precautions",
+  otherNames: "Other names"
+};
+
+function startFlashcards() {
+  const selectedCategories = Array.from(
+    document.querySelectorAll(
+      "#flashcards-content .flashcard-options input:checked"
+    )
+  ).map(input => input.value);
+
+  if (selectedCategories.length === 0) {
+    alert("Please select at least one category.");
+    return;
+  }
+
+  const studyMedications = medications.filter(med =>
+    studyList.includes(med.id)
+  );
+
+  if (studyMedications.length === 0) {
+    alert("Add medications to My Study List before starting flashcards.");
+    return;
+  }
+
+  flashcards = [];
+
+  studyMedications.forEach(med => {
+    selectedCategories.forEach(category => {
+      const answer = med[category];
+
+      if (answer && String(answer).trim() !== "") {
+        flashcards.push({
+          medication: med.name,
+          category: category,
+          question: `${med.name} — ${flashcardCategories[category]}`,
+          answer: String(answer).trim()
+        });
+      }
+    });
+  });
+
+  if (flashcards.length === 0) {
+    alert("No flashcards could be created from those selections.");
+    return;
+  }
+  originalFlashcards = [...flashcards];
+  currentFlashcardIndex = 0;
+
+  document.getElementById("flashcard-study-area").hidden = false;
+  document.getElementById("start-flashcards").textContent =
+    "Refresh Flashcards";
+
+  showFlashcard();
+}
+function updateFlashcardStats() {
+  let known = 0;
+  let practice = 0;
+  let unrated = 0;
+
+  flashcards.forEach(card => {
+    const key = `${card.medication}|${card.category}`;
+    const result = flashcardResults[key];
+
+    if (result === "known") {
+      known++;
+    } else if (result === "practice") {
+      practice++;
+    } else {
+      unrated++;
+    }
+  });
+
+  document.getElementById("flashcard-stats").textContent =
+    `Know It: ${known} | Need Practice: ${practice} | Unrated: ${unrated}`;
+}
+function showFlashcard() {
+  const card = flashcards[currentFlashcardIndex];
+
+  document.getElementById("flashcard-progress").textContent =
+    `Card ${currentFlashcardIndex + 1} of ${flashcards.length}`;
+  updateFlashcardStats();
+  document.getElementById("flashcard-question").textContent =
+    card.question;
+
+  document.getElementById("flashcard-answer-text").textContent =
+    card.answer;
+
+  document.getElementById("flashcard-answer").hidden = true;
+
+  document.getElementById("flashcard-rating").hidden = true;
+
+  document.getElementById("flashcard-show-answer").hidden = false;
+
+  document.getElementById("flashcard-previous").disabled =
+    currentFlashcardIndex === 0;
+
+  document.getElementById("flashcard-next").disabled =
+    currentFlashcardIndex === flashcards.length - 1;
+}
+
+document.getElementById("start-flashcards").addEventListener("click", startFlashcards);
+
+document.getElementById("flashcard-show-answer").addEventListener("click", () => {
+  document.getElementById("flashcard-answer").hidden = false;
+  document.getElementById("flashcard-show-answer").hidden = true;
+  document.getElementById("flashcard-rating").hidden = false;
+});
+
+document.getElementById("flashcard-previous").addEventListener("click", () => {
+  if (currentFlashcardIndex > 0) {
+    currentFlashcardIndex--;
+    showFlashcard();
+  }
+});
+
+document.getElementById("flashcard-next").addEventListener("click", () => {
+  if (currentFlashcardIndex < flashcards.length - 1) {
+    currentFlashcardIndex++;
+    showFlashcard();
+  }
+});
+
+const FLASHCARD_RESULTS_KEY = "pcp-med-reference-flashcard-results-v1";
+
+let flashcardResults = {};
+
+try {
+  flashcardResults = JSON.parse(
+    localStorage.getItem(FLASHCARD_RESULTS_KEY) || "{}"
+  );
+} catch (error) {
+  flashcardResults = {};
+}
+
+function saveFlashcardResults() {
+  localStorage.setItem(
+    FLASHCARD_RESULTS_KEY,
+    JSON.stringify(flashcardResults)
+  );
+}
+
+document.getElementById("flashcard-know-it").addEventListener("click", () => {
+  const card = flashcards[currentFlashcardIndex];
+  flashcardResults[`${card.medication}|${card.category}`] = "known";
+  saveFlashcardResults();
+  updateFlashcardStats();
+
+  document.getElementById("flashcard-rating").hidden = true;
+  document.getElementById("flashcard-answer").hidden = true;
+  document.getElementById("flashcard-show-answer").hidden = false;
+
+  if (currentFlashcardIndex < flashcards.length - 1) {
+    currentFlashcardIndex++;
+    showFlashcard();
+  } else {
+    alert("You've reached the end of your flashcards!");
+  }
+});
+
+document.getElementById("flashcard-need-practice").addEventListener("click", () => {
+  const card = flashcards[currentFlashcardIndex];
+  flashcardResults[`${card.medication}|${card.category}`] = "practice";
+  saveFlashcardResults();
+  updateFlashcardStats();
+
+  document.getElementById("flashcard-rating").hidden = true;
+  document.getElementById("flashcard-answer").hidden = true;
+  document.getElementById("flashcard-show-answer").hidden = false;
+
+  if (currentFlashcardIndex < flashcards.length - 1) {
+    currentFlashcardIndex++;
+    showFlashcard();
+  } else {
+    alert("You've reached the end of your flashcards!");
+  }
+});
+
+document.getElementById("flashcard-shuffle").addEventListener("click", () => {
+  flashcards = [...originalFlashcards];
+
+  for (let i = flashcards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+  }
+
+  currentFlashcardIndex = 0;
+  showFlashcard();
+});
+
+document.getElementById("flashcard-original-order").addEventListener("click", () => {
+  flashcards = [...originalFlashcards];
+  currentFlashcardIndex = 0;
+  showFlashcard();
+});
+
