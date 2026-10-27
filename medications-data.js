@@ -258,7 +258,7 @@ window.PCP_MEDICATIONS = [
     "precautions": "Administration to Right Ventricular Infarction patients, due to preload dependency, can result in hypotension",
     "adverseEffects": "Headaches\nHypotension\nBradycardia\nPostural syncope\nWeakness\nDizziness\nNausea/Vomiting\nReflex Tachycardia",
     "dosage": "0.4 mg SL q 3 - 5 min",
-    "routes": "SQ",
+    "routes": "SL",
     "specialNotes": "- Nitroglycerin is not contraindicated for all inferior STEMIs, only inferior STEMIs with right ventricular involvement. Anytime ST elevation is noted in any one of the inferior leads (II, III or aVF), the V4 electrode should be moved to the 5th intercostal space on the patients’ right side to become V4R. After acquiring a modified 12 lead, if 1mm or more of ST elevation is noted in V4R nitroglycerin should not be administered.\n\n- It is important to check a blood pressure before and after nitroglycerin administration.\n\n- Hypotension may be more pronounced in a patient who has not previously taken nitroglycerin.\n\n- Pregnancy category C [if the patient will benefit from a Category C drug, it is generally used]",
     "keywords": "Chest pain, Angina relief, Heart",
     "studyList": false,
