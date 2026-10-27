@@ -533,3 +533,129 @@ footer {
     flex: 1;
   }
 }
+#review-difficult-cards {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+#review-difficult-cards:hover {
+  opacity: 0.85;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.dashboard-stat {
+  padding: 18px 12px;
+  border-radius: 12px;
+  background: var(--background, #f4f6f8);
+  border: 1px solid var(--border, #e0e4e8);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dashboard-stat strong {
+  font-size: 1.8rem;
+}
+
+.dashboard-stat span {
+  font-size: 0.9rem;
+}
+
+.known-stat strong {
+  color: #16803c;
+}
+
+.practice-stat strong {
+  color: #b7791f;
+}
+
+.unrated-stat strong {
+  color: #64748b;
+}
+
+.dashboard-overall {
+  margin: 24px 0;
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--background, #f4f6f8);
+}
+
+.dashboard-progress-track {
+  width: 100%;
+  height: 9px;
+  margin: 10px 0;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.dashboard-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #16a34a;
+  transition: width 0.3s ease;
+}
+
+.dashboard-category {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border, #e0e4e8);
+}
+
+.dashboard-category:last-child {
+  border-bottom: none;
+}
+
+.dashboard-category-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-category-heading span {
+  color: var(--muted, #64748b);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.dashboard-category p,
+.dashboard-overall p {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  color: var(--muted, #64748b);
+}
+
+@media (max-width: 480px) {
+  .dashboard-stats {
+    gap: 7px;
+  }
+
+  .dashboard-stat {
+    padding: 14px 8px;
+  }
+
+  .dashboard-stat strong {
+    font-size: 1.4rem;
+  }
+
+  .dashboard-stat span {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-category-heading {
+    align-items: flex-start;
+  }
+}

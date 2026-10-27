@@ -192,9 +192,13 @@ function showView(view) {
   currentView = view;
   detailView.hidden = true;
 
-  medicationView.hidden = view === "quiz" || view === "flashcards";
+  medicationView.hidden =
+  view === "quiz" ||
+  view === "flashcards" ||
+  view === "dashboard";
   quizView.hidden = view !== "quiz";
   document.getElementById("flashcards-view").hidden = view !== "flashcards";
+  document.getElementById("dashboard-view").hidden = view !== "dashboard";
 
   searchInput.closest(".search-section").hidden = view === "flashcards";
   $(".tabs").hidden = false;
@@ -203,11 +207,15 @@ function showView(view) {
     tab.classList.toggle("active", tab.dataset.view === view);
   });
 
-  if (view === "quiz") {
-    startQuiz();
-  } else {
-    renderMedications();
-  }
+if (view === "quiz") {
+  startQuiz();
+} else if (view === "dashboard") {
+  updateDashboard();
+} else if (view === "flashcards") {
+  renderMedications();
+} else {
+  renderMedications();
+}
 }
 
 
@@ -540,6 +548,8 @@ function startFlashcards() {
     return;
   }
   originalFlashcards = [...flashcards];
+  console.log("Flashcards created:", flashcards.length);
+console.log("First flashcard:", flashcards[0]);
   currentFlashcardIndex = 0;
 
   document.getElementById("flashcard-study-area").hidden = false;
@@ -548,6 +558,66 @@ function startFlashcards() {
 
   showFlashcard();
 }
+
+function startDifficultFlashcards() {
+  const selectedCategories = Array.from(
+    document.querySelectorAll(
+      "#flashcards-content .flashcard-options input:checked"
+    )
+  ).map(input => input.value);
+
+  if (selectedCategories.length === 0) {
+    alert("Please select at least one category.");
+    return;
+  }
+
+  const studyMedications = medications.filter(med =>
+    studyList.includes(med.id)
+  );
+
+  flashcards = [];
+
+  studyMedications.forEach(med => {
+    selectedCategories.forEach(category => {
+      const answer = med[category];
+      const resultKey = `${med.name}|${category}`;
+
+      if (
+        answer &&
+        String(answer).trim() !== "" &&
+        flashcardResults[resultKey] === "practice"
+      ) {
+        flashcards.push({
+          medication: med.name,
+          category: category,
+          question: `${med.name} — ${flashcardCategories[category]}`,
+          answer: String(answer).trim()
+        });
+      }
+    });
+  });
+
+  const help = document.getElementById("difficult-cards-help");
+
+  if (flashcards.length === 0) {
+    help.textContent =
+      "No difficult cards found in your selected categories. Mark cards as Need Practice to review them here.";
+    return;
+  }
+
+  originalFlashcards = [...flashcards];
+  currentFlashcardIndex = 0;
+
+  document.getElementById("flashcard-study-area").hidden = false;
+  document.getElementById("start-flashcards").textContent =
+    "Refresh Flashcards";
+
+  help.textContent = `Reviewing ${flashcards.length} difficult card(s).`;
+
+  showFlashcard();
+}
+
+
 function updateFlashcardStats() {
   let known = 0;
   let practice = 0;
@@ -569,6 +639,127 @@ function updateFlashcardStats() {
   document.getElementById("flashcard-stats").textContent =
     `Know It: ${known} | Need Practice: ${practice} | Unrated: ${unrated}`;
 }
+
+
+
+function updateDashboard() {
+  const studyMedications = medications.filter(med =>
+    studyList.includes(med.id)
+  );
+
+  let known = 0;
+  let practice = 0;
+  let unrated = 0;
+
+  const categoryStats = {};
+
+  Object.keys(flashcardCategories).forEach(category => {
+    categoryStats[category] = {
+      known: 0,
+      practice: 0,
+      unrated: 0,
+      total: 0
+    };
+  });
+
+  studyMedications.forEach(med => {
+    Object.keys(flashcardCategories).forEach(category => {
+      const answer = med[category];
+
+      if (!answer || String(answer).trim() === "") {
+        return;
+      }
+
+      const result = flashcardResults[`${med.name}|${category}`];
+      categoryStats[category].total++;
+
+      if (result === "known") {
+        known++;
+        categoryStats[category].known++;
+      } else if (result === "practice") {
+        practice++;
+        categoryStats[category].practice++;
+      } else {
+        unrated++;
+        categoryStats[category].unrated++;
+      }
+    });
+  });
+
+const total = known + practice + unrated;
+const overallPercent = total
+  ? Math.round((known / total) * 100)
+  : 0;
+
+  const categoryRows = Object.keys(flashcardCategories).map(category => {
+    const stats = categoryStats[category];
+    console.log(
+  flashcardCategories[category],
+  "Know It:", stats.known,
+  "Need Practice:", stats.practice,
+  "Unrated:", stats.unrated,
+  "Total:", stats.total
+);
+const percent = stats.total
+  ? Math.round((stats.known / stats.total) * 100)
+  : 0;
+
+    return `
+      <div class="dashboard-category">
+        <div class="dashboard-category-heading">
+          <strong>${flashcardCategories[category]}</strong>
+          <span>${percent}% Done</span>
+        </div>
+        <div class="dashboard-progress-track">
+          <div class="dashboard-progress-fill" style="width: ${percent}%"></div>
+        </div>
+        <p>Know It: ${stats.known} · Need Practice: ${stats.practice} · Unrated: ${stats.unrated}</p>
+      </div>
+    `;
+  }).join("");
+
+  const content = document.getElementById("dashboard-content");
+
+  content.innerHTML = `
+    <h3>Your Study Progress</h3>
+    <p>Based on medications in My Study List.</p>
+
+    <div class="dashboard-stats">
+      <div class="dashboard-stat known-stat">
+        <strong>${known}</strong>
+        <span>Know It</span>
+      </div>
+      <div class="dashboard-stat practice-stat">
+        <strong>${practice}</strong>
+        <span>Need Practice</span>
+      </div>
+      <div class="dashboard-stat unrated-stat">
+        <strong>${unrated}</strong>
+        <span>Unrated</span>
+      </div>
+    </div>
+
+    <div class="dashboard-overall">
+      <div class="dashboard-category-heading">
+        <strong>Overall progress</strong>
+        <span>${overallPercent}% Known</span>
+      </div>
+      <div class="dashboard-progress-track overall-track">
+        <div class="dashboard-progress-fill" style="width: ${overallPercent}%"></div>
+      </div>
+      <p>${known} of ${total} available flashcards mastered</p>
+    </div>
+
+    <h3>Progress by Category</h3>
+    <div class="dashboard-categories">
+      ${categoryRows}
+    </div>
+  `;
+}
+
+
+
+
 function showFlashcard() {
   const card = flashcards[currentFlashcardIndex];
 
@@ -595,6 +786,7 @@ function showFlashcard() {
 }
 
 document.getElementById("start-flashcards").addEventListener("click", startFlashcards);
+document.getElementById("review-difficult-cards").addEventListener("click", startDifficultFlashcards);
 
 document.getElementById("flashcard-show-answer").addEventListener("click", () => {
   document.getElementById("flashcard-answer").hidden = false;

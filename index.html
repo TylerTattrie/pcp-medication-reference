@@ -51,6 +51,7 @@
   <button class="tab" data-view="study-list">My Study List <span id="study-count">0</span></button>
   <button class="tab" data-view="quiz">Practice Quiz</button>
   <button class="tab" data-view="flashcards">Flashcards</button>
+  <button class="tab" data-view="dashboard">Progress Tracking</button>
 </nav>
 
     <section id="medication-view">
@@ -101,7 +102,11 @@
   <button id="start-flashcards" class="primary-button">
     Start Flashcards
   </button>
-  
+  <button id="review-difficult-cards" type="button">
+  Review Difficult Cards
+</button>
+
+<p id="difficult-cards-help"></p>
 
 <div id="flashcard-study-area" hidden>
   <div class="flashcard-progress" id="flashcard-progress"></div>
@@ -151,6 +156,20 @@
 
 </div>
 </section>
+
+
+<section id="dashboard-view" hidden>
+  <div class="section-heading">
+    <h2>Weak Areas Dashboard</h2>
+    <p>Track your medication knowledge and focus your study time.</p>
+  </div>
+
+  <div id="dashboard-content" class="quiz-card">
+    <h3>Your Study Progress</h3>
+    <p>Your saved flashcard ratings will appear here.</p>
+  </div>
+</section>
+
 
     <footer>
       <p>Personal study aid • Always follow current protocols and medical direction.</p>
