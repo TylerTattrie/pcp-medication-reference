@@ -101,7 +101,7 @@ function renderMedications() {
   "Ketorolac": "Syringe.svg",
   "Metoclopramide": "Syringe.svg",
   "Naloxone": "Syringe.svg",
-  "Nitroglycerin": "Syringe.svg",
+  "Nitroglycerin": "Spray.svg",
   "Ondansetron": "Syringe.svg",
   "Ipratropium Bromide": "Inhaler.svg",
   "Salbutamol": "Inhaler.svg",

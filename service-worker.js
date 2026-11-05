@@ -14,7 +14,8 @@ const APP_FILES = [
   "./MedicationImages/Inhaler.svg",
   "./MedicationImages/Oxygen.svg",
   "./MedicationImages/Buccal.svg",
-  "./MedicationImages/Eyedrops.svg"
+  "./MedicationImages/Eyedrops.svg",
+  "./MedicationImages/Spray.svg"
 ];
 
 self.addEventListener("install", event => {
