@@ -22,6 +22,44 @@ let answered = false;
 
 const STORAGE_KEY = "pcp-med-reference-study-list-v2";
 
+// PCP085 class progress
+const PCP085_COMPLETED_IDS = [
+  "aceteminophen",
+  "acetylsalicyclic-acid",
+  "d50w",
+  "dimenhydrinate",
+  "diphenhydramine",
+  "ibuprofen",
+  "ipratropium-bromide",
+  "ketorolac",
+  "nitroglycerin",
+  "salbutamol"
+];
+const PCP085_UPCOMING_ID = "epinephrine";
+
+const medicationIcons = {
+  "Acetaminophen": "Tablet.svg",
+  "Acetylsalicylic Acid": "Tablet.svg",
+  "Ibuprofen": "Tablet.svg",
+  "D50W": "IVBag.svg",
+  "Dimenhydrinate": "Syringe.svg",
+  "Diphenhydramine": "Syringe.svg",
+  "Epinephrine": "Syringe.svg",
+  "Glucagon": "Syringe.svg",
+  "Ketorolac": "Syringe.svg",
+  "Metoclopramide": "Syringe.svg",
+  "Naloxone": "Syringe.svg",
+  "Nitroglycerin": "Spray.svg",
+  "Ondansetron": "Syringe.svg",
+  "Ipratropium Bromide": "Inhaler.svg",
+  "Salbutamol": "Inhaler.svg",
+  "Nitrous Oxide": "Oxygen.svg",
+  "Oxygen": "Oxygen.svg",
+  "Oral Glucose": "Buccal.svg",
+  "Tetracaine": "Eyedrops.svg",
+  "Penthrox": "Penthrox.svg"
+};
+
 function loadStudyList() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -63,63 +101,29 @@ function escapeHTML(value = "") {
   })[character]);
 }
 
-function renderMedications() {
-  const query = searchInput.value.trim().toLowerCase();
+function matchesSearch(med, query) {
+  if (!query) return true;
+  const searchable = [
+    med.name,
+    med.otherNames,
+    med.classifications,
+    med.indications,
+    med.keywords
+  ].join(" ").toLowerCase();
+  return searchable.includes(query);
+}
 
-  let results = medications.filter(med => {
-    const searchable = [
-      med.name,
-      med.otherNames,
-      med.classifications,
-      med.indications,
-      med.keywords
-    ].join(" ").toLowerCase();
-
-    return searchable.includes(query);
-  });
-
-  if (currentView === "study-list") {
-    results = results.filter(med => studyList.includes(med.id));
-  }
-
-  $("#list-heading").textContent =
-    currentView === "study-list" ? "My Study List" : "Medication Library";
-
-  $("#result-count").textContent =
-    `${results.length} medication${results.length === 1 ? "" : "s"}`;
-  $("#empty-message").hidden = results.length !== 0;
-
-  const medicationIcons = {
-  "Acetaminophen": "Tablet.svg",
-  "Acetylsalicylic Acid": "Tablet.svg",
-  "Ibuprofen": "Tablet.svg",
-  "D50W": "IVBag.svg",
-  "Dimenhydrinate": "Syringe.svg",
-  "Diphenhydramine": "Syringe.svg",
-  "Epinephrine": "Syringe.svg",
-  "Glucagon": "Syringe.svg",
-  "Ketorolac": "Syringe.svg",
-  "Metoclopramide": "Syringe.svg",
-  "Naloxone": "Syringe.svg",
-  "Nitroglycerin": "Spray.svg",
-  "Ondansetron": "Syringe.svg",
-  "Ipratropium Bromide": "Inhaler.svg",
-  "Salbutamol": "Inhaler.svg",
-  "Nitrous Oxide": "Oxygen.svg",
-  "Oxygen": "Oxygen.svg",
-  "Oral Glucose": "Buccal.svg",
-  "Tetracaine": "Eyedrops.svg",
-  "Penthrox": "Penthrox.svg"
-};
-  medicationList.innerHTML = results.map(med => `
-    <article class="medication-card">
-  ${medicationIcons[med.name] ? `
-    <img
-      class="medication-icon"
-      src="MedicationImages/${medicationIcons[med.name]}"
-      alt=""
-    >
-  ` : ""}
+function buildMedicationCard(med, extraClass = "") {
+  const classes = ["medication-card", extraClass].filter(Boolean).join(" ");
+  return `
+    <article class="${classes}">
+      ${medicationIcons[med.name] ? `
+        <img
+          class="medication-icon"
+          src="MedicationImages/${medicationIcons[med.name]}"
+          alt=""
+        >
+      ` : ""}
       <h3>${escapeHTML(med.name)}</h3>
       ${med.otherNames ? `<p>Also known as: ${escapeHTML(med.otherNames)}</p>` : ""}
       <p>${escapeHTML(med.classifications || "Classification not entered")}</p>
@@ -133,7 +137,69 @@ function renderMedications() {
         </button>
       </div>
     </article>
-  `).join("");
+  `;
+}
+
+function renderMedications() {
+  const query = searchInput.value.trim().toLowerCase();
+
+  if (currentView === "pcp085") {
+    const upcoming = medications.find(med => med.id === PCP085_UPCOMING_ID);
+    const completed = medications.filter(med =>
+      PCP085_COMPLETED_IDS.includes(med.id) && matchesSearch(med, query)
+    );
+    const showUpcoming = upcoming && matchesSearch(upcoming, query);
+
+    $("#list-heading").textContent = "PCP085";
+    const totalShown = (showUpcoming ? 1 : 0) + completed.length;
+    $("#result-count").textContent =
+      `${totalShown} medication${totalShown === 1 ? "" : "s"}`;
+    $("#empty-message").hidden = totalShown !== 0;
+
+    let html = "";
+
+    if (showUpcoming) {
+      html += `
+        <h3 class="pcp085-section-title">Upcoming Quiz:</h3>
+        <div class="medication-grid pcp085-upcoming-grid">
+          ${buildMedicationCard(upcoming, "upcoming-highlight")}
+        </div>
+      `;
+    }
+
+    html += `<h3 class="pcp085-section-title">Completed Quizzes</h3>`;
+    if (completed.length) {
+      html += `
+        <div class="medication-grid">
+          ${completed.map(med => buildMedicationCard(med)).join("")}
+        </div>
+      `;
+    } else if (!showUpcoming) {
+      // nothing matches search
+    } else {
+      html += `<p class="empty-message">No completed quizzes match your search.</p>`;
+    }
+
+    medicationList.innerHTML = html;
+    return;
+  }
+
+  let results = medications.filter(med => matchesSearch(med, query));
+
+  if (currentView === "study-list") {
+    results = results.filter(med => studyList.includes(med.id));
+  }
+
+  $("#list-heading").textContent =
+    currentView === "study-list" ? "My Study List" : "Medication Library";
+
+  $("#result-count").textContent =
+    `${results.length} medication${results.length === 1 ? "" : "s"}`;
+  $("#empty-message").hidden = results.length !== 0;
+
+  medicationList.innerHTML = results.length
+    ? `<div class="medication-grid">${results.map(med => buildMedicationCard(med)).join("")}</div>`
+    : "";
 }
 
 function detailField(label, value) {
@@ -194,9 +260,9 @@ function showView(view) {
   detailView.hidden = true;
 
   medicationView.hidden =
-  view === "quiz" ||
-  view === "flashcards" ||
-  view === "dashboard";
+    view === "quiz" ||
+    view === "flashcards" ||
+    view === "dashboard";
   quizView.hidden = view !== "quiz";
   document.getElementById("flashcards-view").hidden = view !== "flashcards";
   document.getElementById("dashboard-view").hidden = view !== "dashboard";
@@ -208,15 +274,13 @@ function showView(view) {
     tab.classList.toggle("active", tab.dataset.view === view);
   });
 
-if (view === "quiz") {
-  startQuiz();
-} else if (view === "dashboard") {
-  updateDashboard();
-} else if (view === "flashcards") {
-  renderMedications();
-} else {
-  renderMedications();
-}
+  if (view === "quiz") {
+    startQuiz();
+  } else if (view === "dashboard") {
+    updateDashboard();
+  } else {
+    renderMedications();
+  }
 }
 
 
