@@ -587,7 +587,7 @@ function startFlashcards() {
   );
 
   if (studyMedications.length === 0) {
-    alert("Add medications to My Study List before starting flashcards.");
+    alert("Add medications to My Study List first (☆ Save on any drug card), then try again.");
     return;
   }
 
@@ -609,17 +609,18 @@ function startFlashcards() {
   });
 
   if (flashcards.length === 0) {
-    alert("No flashcards could be created from those selections.");
+    alert("No flashcards could be created from those selections. Try choosing different categories or adding more medications to your Study List.");
     return;
   }
+
   originalFlashcards = [...flashcards];
-  console.log("Flashcards created:", flashcards.length);
-console.log("First flashcard:", flashcards[0]);
   currentFlashcardIndex = 0;
 
-  document.getElementById("flashcard-study-area").hidden = false;
-  document.getElementById("start-flashcards").textContent =
-    "Refresh Flashcards";
+  const studyArea = document.getElementById("flashcard-study-area");
+  if (studyArea) studyArea.hidden = false;
+
+  const startBtn = document.getElementById("start-flashcards");
+  if (startBtn) startBtn.textContent = "Refresh Flashcards";
 
   showFlashcard();
 }
@@ -850,8 +851,15 @@ function showFlashcard() {
     currentFlashcardIndex === flashcards.length - 1;
 }
 
-document.getElementById("start-flashcards").addEventListener("click", startFlashcards);
-document.getElementById("review-difficult-cards").addEventListener("click", startDifficultFlashcards);
+const startFlashcardsBtn = document.getElementById("start-flashcards");
+if (startFlashcardsBtn) {
+  startFlashcardsBtn.addEventListener("click", startFlashcards);
+}
+
+const reviewDifficultBtn = document.getElementById("review-difficult-cards");
+if (reviewDifficultBtn) {
+  reviewDifficultBtn.addEventListener("click", startDifficultFlashcards);
+}
 
 document.getElementById("flashcard-show-answer").addEventListener("click", () => {
   document.getElementById("flashcard-answer").hidden = false;

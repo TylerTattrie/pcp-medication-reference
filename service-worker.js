@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "pcp-med-reference-v3";
+const CACHE_NAME = "pcp-med-reference-v4";
 
 const APP_FILES = [
   "./",
@@ -15,7 +15,9 @@ const APP_FILES = [
   "./MedicationImages/Oxygen.svg",
   "./MedicationImages/Buccal.svg",
   "./MedicationImages/Eyedrops.svg",
-  "./MedicationImages/Spray.svg"
+  "./MedicationImages/Spray.svg",
+  "./MedicationImages/Vial.svg",
+  "./MedicationImages/Penthrox.svg"
 ];
 
 self.addEventListener("install", event => {
