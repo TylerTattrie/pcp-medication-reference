@@ -108,7 +108,8 @@ function renderMedications() {
   "Nitrous Oxide": "Oxygen.svg",
   "Oxygen": "Oxygen.svg",
   "Oral Glucose": "Buccal.svg",
-  "Tetracaine": "Eyedrops.svg"
+  "Tetracaine": "Eyedrops.svg",
+  "Penthrox": "Penthrox.svg"
 };
   medicationList.innerHTML = results.map(med => `
     <article class="medication-card">
