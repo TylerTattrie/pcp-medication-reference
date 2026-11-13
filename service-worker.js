@@ -1,5 +1,5 @@
 
-const CACHE_NAME = "pcp-med-reference-v4";
+const CACHE_NAME = "pcp-med-reference-v5";
 
 const APP_FILES = [
   "./",

@@ -262,12 +262,15 @@ function showView(view) {
   medicationView.hidden =
     view === "quiz" ||
     view === "flashcards" ||
+    view === "match" ||
     view === "dashboard";
   quizView.hidden = view !== "quiz";
   document.getElementById("flashcards-view").hidden = view !== "flashcards";
+  document.getElementById("match-view").hidden = view !== "match";
   document.getElementById("dashboard-view").hidden = view !== "dashboard";
 
-  searchInput.closest(".search-section").hidden = view === "flashcards";
+  searchInput.closest(".search-section").hidden =
+    view === "flashcards" || view === "match";
   $(".tabs").hidden = false;
 
   document.querySelectorAll(".tab").forEach(tab => {
@@ -278,6 +281,8 @@ function showView(view) {
     startQuiz();
   } else if (view === "dashboard") {
     updateDashboard();
+  } else if (view === "match") {
+    showMatchSetup();
   } else {
     renderMedications();
   }
@@ -506,54 +511,6 @@ if ("serviceWorker" in navigator) {
 
 
 
-let deferredInstallPrompt;
-
-const installButton = document.getElementById("install-button");
-const installHelp = document.getElementById("install-help");
-
-function showInstallHelp(message) {
-  installHelp.textContent = message;
-  installHelp.hidden = false;
-}
-
-window.addEventListener("beforeinstallprompt", event => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  installButton.hidden = false;
-});
-
-installButton.addEventListener("click", async () => {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-
-    const choice = await deferredInstallPrompt.userChoice;
-
-    if (choice.outcome === "accepted") {
-      installButton.hidden = true;
-      showInstallHelp("App installation started.");
-    }
-
-    deferredInstallPrompt = null;
-    return;
-  }
-
-  showInstallHelp(
-    "To install on iPhone or iPad: open this site in Safari, tap Share, then Add to Home Screen. On Mac Safari, use File > Add to Dock if available."
-  );
-});
-
-window.addEventListener("appinstalled", () => {
-  installButton.hidden = true;
-  showInstallHelp("PCP Med Reference is installed.");
-});
-
-if (window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true) {
-  installButton.hidden = true;
-} else {
-  installButton.hidden = false;
-}
-
 let flashcards = [];
 let originalFlashcards = [];
 let currentFlashcardIndex = 0;
@@ -702,8 +659,33 @@ function updateFlashcardStats() {
     }
   });
 
-  document.getElementById("flashcard-stats").textContent =
-    `Know It: ${known} | Need Practice: ${practice} | Unrated: ${unrated}`;
+  const total = known + practice + unrated;
+  const knownPct = total ? Math.round((known / total) * 100) : 0;
+  const practicePct = total ? Math.round((practice / total) * 100) : 0;
+  const unratedPct = total ? Math.max(0, 100 - knownPct - practicePct) : 0;
+
+  const statsEl = document.getElementById("flashcard-stats");
+  if (!statsEl) return;
+
+  statsEl.innerHTML = `
+    <div class="flashcard-stats-pills">
+      <span class="stat-pill known-pill">
+        <strong>${known}</strong> Know It
+      </span>
+      <span class="stat-pill practice-pill">
+        <strong>${practice}</strong> Need Practice
+      </span>
+      <span class="stat-pill unrated-pill">
+        <strong>${unrated}</strong> Unrated
+      </span>
+    </div>
+    <div class="flashcard-progress-bar" role="img" aria-label="${knownPct}% known, ${practicePct}% need practice, ${unratedPct}% unrated">
+      <div class="progress-segment known-segment" style="width: ${knownPct}%"></div>
+      <div class="progress-segment practice-segment" style="width: ${practicePct}%"></div>
+      <div class="progress-segment unrated-segment" style="width: ${unratedPct}%"></div>
+    </div>
+    <p class="flashcard-progress-label">${knownPct}% known · ${practicePct}% need practice · ${unratedPct}% unrated</p>
+  `;
 }
 
 
@@ -826,6 +808,11 @@ const percent = stats.total
 
 
 
+function resetFlashcardFlip() {
+  const flip = document.getElementById("flashcard-flip");
+  if (flip) flip.classList.remove("is-flipped");
+}
+
 function showFlashcard() {
   const card = flashcards[currentFlashcardIndex];
 
@@ -838,10 +825,9 @@ function showFlashcard() {
   document.getElementById("flashcard-answer-text").textContent =
     card.answer;
 
-  document.getElementById("flashcard-answer").hidden = true;
+  resetFlashcardFlip();
 
   document.getElementById("flashcard-rating").hidden = true;
-
   document.getElementById("flashcard-show-answer").hidden = false;
 
   document.getElementById("flashcard-previous").disabled =
@@ -862,7 +848,8 @@ if (reviewDifficultBtn) {
 }
 
 document.getElementById("flashcard-show-answer").addEventListener("click", () => {
-  document.getElementById("flashcard-answer").hidden = false;
+  const flip = document.getElementById("flashcard-flip");
+  if (flip) flip.classList.add("is-flipped");
   document.getElementById("flashcard-show-answer").hidden = true;
   document.getElementById("flashcard-rating").hidden = false;
 });
@@ -907,13 +894,13 @@ document.getElementById("flashcard-know-it").addEventListener("click", () => {
   updateFlashcardStats();
 
   document.getElementById("flashcard-rating").hidden = true;
-  document.getElementById("flashcard-answer").hidden = true;
   document.getElementById("flashcard-show-answer").hidden = false;
 
   if (currentFlashcardIndex < flashcards.length - 1) {
     currentFlashcardIndex++;
     showFlashcard();
   } else {
+    resetFlashcardFlip();
     alert("You've reached the end of your flashcards!");
   }
 });
@@ -925,13 +912,13 @@ document.getElementById("flashcard-need-practice").addEventListener("click", () 
   updateFlashcardStats();
 
   document.getElementById("flashcard-rating").hidden = true;
-  document.getElementById("flashcard-answer").hidden = true;
   document.getElementById("flashcard-show-answer").hidden = false;
 
   if (currentFlashcardIndex < flashcards.length - 1) {
     currentFlashcardIndex++;
     showFlashcard();
   } else {
+    resetFlashcardFlip();
     alert("You've reached the end of your flashcards!");
   }
 });
@@ -954,3 +941,309 @@ document.getElementById("flashcard-original-order").addEventListener("click", ()
   showFlashcard();
 });
 
+
+// --- Match Game ---
+const MATCH_FIELD_LABELS = {
+  classifications: "Classifications",
+  indications: "Indications",
+  dosage: "Dosage",
+  routes: "Routes",
+  contraindications: "Contraindications",
+  otherNames: "Other names"
+};
+
+let matchSelectedFields = [];
+let matchFieldQueue = [];
+let matchField = "classifications";
+let matchPairs = [];
+let matchSelectedLeft = null;
+let matchSelectedRight = null;
+let matchMatched = 0;
+let matchScore = 0;
+let matchRound = 0;
+let matchLocked = false;
+let matchSessionActive = false;
+
+function showMatchSetup() {
+  document.getElementById("match-setup").hidden = false;
+  document.getElementById("match-play").hidden = true;
+  document.getElementById("match-setup-help").hidden = true;
+  matchSessionActive = false;
+}
+
+function getMatchAnswer(med, field) {
+  const value = med[field];
+  if (!value || !String(value).trim()) return "";
+  return String(value).trim();
+}
+
+function getSelectedMatchFields() {
+  return Array.from(
+    document.querySelectorAll('input[name="match-field"]:checked')
+  ).map(input => input.value);
+}
+
+function startMatchSession(resetScore = true) {
+  const help = document.getElementById("match-setup-help");
+  matchSelectedFields = getSelectedMatchFields();
+
+  if (matchSelectedFields.length === 0) {
+    help.textContent = "Select at least one category to match.";
+    help.hidden = false;
+    return;
+  }
+
+  const usableFields = matchSelectedFields.filter(field => {
+    const count = medications.filter(
+      med => studyList.includes(med.id) && getMatchAnswer(med, field)
+    ).length;
+    return count >= 2;
+  });
+
+  if (usableFields.length === 0) {
+    help.textContent =
+      "Add at least 2 study-list medications with data in the selected categories. This game works best with multiple drugs.";
+    help.hidden = false;
+    return;
+  }
+
+  help.hidden = true;
+  matchFieldQueue = shuffle([...usableFields]);
+  matchRound = 0;
+  if (resetScore) matchScore = 0;
+  matchSessionActive = true;
+
+  document.getElementById("match-setup").hidden = true;
+  document.getElementById("match-play").hidden = false;
+  document.getElementById("match-next").hidden = true;
+
+  startNextMatchRound();
+}
+
+function startNextMatchRound() {
+  if (!matchFieldQueue.length) {
+    matchFieldQueue = shuffle(
+      matchSelectedFields.filter(field => {
+        const count = medications.filter(
+          med => studyList.includes(med.id) && getMatchAnswer(med, field)
+        ).length;
+        return count >= 2;
+      })
+    );
+  }
+
+  if (!matchFieldQueue.length) {
+    document.getElementById("match-feedback").textContent =
+      "No more playable categories with your current study list.";
+    document.getElementById("match-next").hidden = true;
+    return;
+  }
+
+  matchField = matchFieldQueue.shift();
+  matchRound += 1;
+
+  const studyMeds = medications.filter(
+    med => studyList.includes(med.id) && getMatchAnswer(med, matchField)
+  );
+
+  const pairCount = Math.min(6, studyMeds.length);
+  const chosen = shuffle([...studyMeds]).slice(0, pairCount);
+
+  matchPairs = chosen.map(med => ({
+    id: med.id,
+    name: med.name,
+    answer: getMatchAnswer(med, matchField),
+    matched: false
+  }));
+
+  const usedAnswers = new Set(matchPairs.map(p => p.answer.toLowerCase()));
+  const distractorPool = medications.filter(med => {
+    const answer = getMatchAnswer(med, matchField);
+    if (!answer) return false;
+    if (usedAnswers.has(answer.toLowerCase())) return false;
+    return true;
+  });
+
+  const distractorCount = Math.min(3, distractorPool.length);
+  const distractors = shuffle(distractorPool)
+    .slice(0, distractorCount)
+    .map(med => ({
+      id: `distractor-${med.id}`,
+      answer: getMatchAnswer(med, matchField),
+      isDistractor: true
+    }));
+
+  matchMatched = 0;
+  matchSelectedLeft = null;
+  matchSelectedRight = null;
+  matchLocked = false;
+
+  document.getElementById("match-next").hidden = true;
+  document.getElementById("match-round-label").textContent = `Round ${matchRound}`;
+  document.getElementById("match-category-label").textContent =
+    `Category: ${MATCH_FIELD_LABELS[matchField] || matchField}`;
+  document.getElementById("match-feedback").textContent =
+    `Match each medication to its ${MATCH_FIELD_LABELS[matchField] || matchField}.`;
+
+  renderMatchBoard(distractors);
+  updateMatchStatus();
+}
+
+function renderMatchBoard(distractors) {
+  const leftEl = document.getElementById("match-left");
+  const rightEl = document.getElementById("match-right");
+
+  const leftItems = shuffle(
+    matchPairs.map(p => ({
+      key: p.id,
+      label: p.name
+    }))
+  );
+
+  const rightItems = shuffle([
+    ...matchPairs.map(p => ({
+      key: p.id,
+      label: p.answer,
+      isDistractor: false
+    })),
+    ...distractors.map(d => ({
+      key: d.id,
+      label: d.answer,
+      isDistractor: true
+    }))
+  ]);
+
+  leftEl.innerHTML = leftItems
+    .map(
+      item => `
+      <button type="button" class="match-item" data-match-side="left" data-match-id="${escapeHTML(item.key)}">
+        ${escapeHTML(item.label)}
+      </button>
+    `
+    )
+    .join("");
+
+  rightEl.innerHTML = rightItems
+    .map(
+      item => `
+      <button type="button" class="match-item" data-match-side="right" data-match-id="${escapeHTML(item.key)}" data-distractor="${item.isDistractor ? "1" : "0"}">
+        ${escapeHTML(item.label)}
+      </button>
+    `
+    )
+    .join("");
+}
+
+function updateMatchStatus() {
+  document.getElementById("match-progress").textContent =
+    `${matchMatched} / ${matchPairs.length} matched`;
+  document.getElementById("match-score").textContent =
+    `Score: ${matchScore}`;
+}
+
+function handleMatchClick(button) {
+  if (matchLocked) return;
+  if (button.classList.contains("matched")) return;
+
+  const side = button.dataset.matchSide;
+  const id = button.dataset.matchId;
+
+  if (side === "left") {
+    document
+      .querySelectorAll('.match-item[data-match-side="left"].selected')
+      .forEach(el => el.classList.remove("selected"));
+    button.classList.add("selected");
+    matchSelectedLeft = id;
+  } else {
+    document
+      .querySelectorAll('.match-item[data-match-side="right"].selected')
+      .forEach(el => el.classList.remove("selected"));
+    button.classList.add("selected");
+    matchSelectedRight = id;
+  }
+
+  if (matchSelectedLeft && matchSelectedRight) {
+    evaluateMatch();
+  }
+}
+
+function evaluateMatch() {
+  matchLocked = true;
+  const leftBtn = document.querySelector(
+    `.match-item[data-match-side="left"][data-match-id="${CSS.escape(matchSelectedLeft)}"]`
+  );
+  const rightBtn = document.querySelector(
+    `.match-item[data-match-side="right"][data-match-id="${CSS.escape(matchSelectedRight)}"]`
+  );
+
+  const isDistractor = rightBtn && rightBtn.dataset.distractor === "1";
+  const isCorrect = !isDistractor && matchSelectedLeft === matchSelectedRight;
+
+  if (isCorrect) {
+    matchScore += 10;
+    matchMatched += 1;
+    leftBtn.classList.remove("selected");
+    rightBtn.classList.remove("selected");
+    leftBtn.classList.add("matched");
+    rightBtn.classList.add("matched");
+    document.getElementById("match-feedback").textContent = "Correct match!";
+    updateMatchStatus();
+
+    matchSelectedLeft = null;
+    matchSelectedRight = null;
+    matchLocked = false;
+
+    if (matchMatched >= matchPairs.length) {
+      document.getElementById("match-feedback").textContent =
+        `Round complete! Cumulative score: ${matchScore}. Press Next question to continue.`;
+      document.getElementById("match-next").hidden = false;
+    }
+    return;
+  }
+
+  leftBtn.classList.add("mismatch");
+  rightBtn.classList.add("mismatch");
+  matchScore = Math.max(0, matchScore - 2);
+  document.getElementById("match-feedback").textContent = isDistractor
+    ? "That's a distractor from another medication. Try again."
+    : "Not a match. Try again.";
+  updateMatchStatus();
+
+  setTimeout(() => {
+    leftBtn.classList.remove("selected", "mismatch");
+    rightBtn.classList.remove("selected", "mismatch");
+    matchSelectedLeft = null;
+    matchSelectedRight = null;
+    matchLocked = false;
+  }, 700);
+}
+
+document.getElementById("start-match").addEventListener("click", () => {
+  startMatchSession(true);
+});
+
+document.getElementById("match-select-all").addEventListener("click", () => {
+  document
+    .querySelectorAll('input[name="match-field"]')
+    .forEach(input => {
+      input.checked = true;
+    });
+});
+
+document.getElementById("match-next").addEventListener("click", () => {
+  startNextMatchRound();
+});
+
+document.getElementById("match-restart").addEventListener("click", () => {
+  startMatchSession(true);
+});
+
+document.getElementById("match-back-setup").addEventListener("click", () => {
+  showMatchSetup();
+});
+
+document.getElementById("match-play").addEventListener("click", event => {
+  const button = event.target.closest(".match-item");
+  if (!button) return;
+  handleMatchClick(button);
+});

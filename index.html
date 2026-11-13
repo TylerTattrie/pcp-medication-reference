@@ -28,12 +28,6 @@
   <p class="eyebrow">STUDY • REVIEW • PRACTISE</p>
   <h2>Your medications, all in one place.</h2>
   <p>Search your drug cards, build a study list, and practise your knowledge.</p>
-
-  <button id="install-button" class="primary-button" hidden>
-    ↓ Install App
-  </button>
-
-  <p id="install-help" hidden></p>
 </section>
 
     <section class="search-section">
@@ -52,6 +46,7 @@
   <button class="tab" data-view="study-list">My Study List <span id="study-count">0</span></button>
   <button class="tab" data-view="quiz">Practice Quiz</button>
   <button class="tab" data-view="flashcards">Flashcards</button>
+  <button class="tab" data-view="match">Match</button>
   <!--<button class="tab" data-view="dashboard">Progress Tracking</button>-->
 </nav>
 
@@ -111,15 +106,19 @@
 
 <div id="flashcard-study-area" hidden>
   <div class="flashcard-progress" id="flashcard-progress"></div>
-  <div id="flashcard-stats" class="flashcard-stats"></div>
+  <div id="flashcard-stats" class="flashcard-stats" aria-live="polite"></div>
 
-  <div class="flashcard-face">
-    <p id="flashcard-question"></p>
-
-    <div id="flashcard-answer" hidden>
-      <hr>
-      <h3>Answer</h3>
-      <p id="flashcard-answer-text"></p>
+  <div class="flashcard-scene">
+    <div class="flashcard-flip" id="flashcard-flip">
+      <div class="flashcard-face flashcard-front">
+        <p class="flashcard-label">Question</p>
+        <p id="flashcard-question"></p>
+        <p class="flashcard-hint">Tap “Show Answer” to flip</p>
+      </div>
+      <div class="flashcard-face flashcard-back">
+        <p class="flashcard-label">Answer</p>
+        <p id="flashcard-answer-text"></p>
+      </div>
     </div>
   </div>
 
@@ -158,6 +157,60 @@
 </div>
 </section>
 
+
+<section id="match-view" hidden>
+  <div class="section-heading">
+    <h2>Match Game</h2>
+    <p>Match study-list drugs to the correct details. Wrong answers may come from the full library.</p>
+  </div>
+
+  <div id="match-setup" class="quiz-card">
+    <h3>What do you want to match?</h3>
+    <p>Intended for studying <strong>multiple drugs at once</strong>. Add several medications to My Study List, then choose one or more categories. You can play consecutive rounds with a cumulative score. Distractors can come from any medication in the full library.</p>
+
+    <div class="flashcard-options match-options">
+      <label><input type="checkbox" name="match-field" value="classifications" checked> Classifications</label>
+      <label><input type="checkbox" name="match-field" value="indications" checked> Indications</label>
+      <label><input type="checkbox" name="match-field" value="dosage"> Dosage</label>
+      <label><input type="checkbox" name="match-field" value="routes"> Routes</label>
+      <label><input type="checkbox" name="match-field" value="contraindications"> Contraindications</label>
+      <label><input type="checkbox" name="match-field" value="otherNames"> Other names</label>
+    </div>
+
+    <div class="match-setup-actions">
+      <button id="match-select-all" type="button">Select all</button>
+      <button id="start-match" class="primary-button">Start Match</button>
+    </div>
+    <p id="match-setup-help" class="empty-message" hidden></p>
+  </div>
+
+  <div id="match-play" class="quiz-card" hidden>
+    <div class="match-status">
+      <span id="match-round-label">Round 1</span>
+      <span id="match-progress">0 / 0 matched</span>
+      <span id="match-score">Score: 0</span>
+    </div>
+    <p id="match-category-label" class="match-category-label"></p>
+    <p id="match-feedback" class="match-feedback" aria-live="polite"></p>
+
+    <div class="match-board">
+      <div class="match-column">
+        <h3>Medication</h3>
+        <div id="match-left" class="match-list"></div>
+      </div>
+      <div class="match-column">
+        <h3>Match to</h3>
+        <div id="match-right" class="match-list"></div>
+      </div>
+    </div>
+
+    <div class="match-actions">
+      <button id="match-next" class="primary-button" type="button" hidden>Next question</button>
+      <button id="match-restart" type="button">Restart session</button>
+      <button id="match-back-setup" type="button">Change categories</button>
+    </div>
+  </div>
+</section>
 
 <section id="dashboard-view" hidden>
   <div class="section-heading">
