@@ -29,13 +29,14 @@ const PCP085_COMPLETED_IDS = [
   "d50w",
   "dimenhydrinate",
   "diphenhydramine",
+  "epinephrine",
   "ibuprofen",
   "ipratropium-bromide",
   "ketorolac",
   "nitroglycerin",
   "salbutamol"
 ];
-const PCP085_UPCOMING_ID = "epinephrine";
+const PCP085_UPCOMING_ID = "glucagon";
 
 const medicationIcons = {
   "Acetaminophen": "Tablet.svg",
