@@ -141,8 +141,34 @@ function buildMedicationCard(med, extraClass = "") {
   `;
 }
 
+const STUDY_PRESETS = {
+  upcoming: () => [PCP085_UPCOMING_ID],
+  completed: () => [...PCP085_COMPLETED_IDS],
+  pain: () => ["aceteminophen", "ibuprofen", "ketorolac", "penthrox", "nitrous-oxide", "metoclopramide"],
+  "blood-sugar": () => ["oral-glucose", "glucagon", "d50w"],
+  respiratory: () => ["salbutamol", "ipratropium-bromide", "epinephrine", "oxygen"],
+  allergic: () => ["epinephrine", "diphenhydramine"],
+  cardiac: () => ["acetylsalicyclic-acid", "nitroglycerin"],
+  nausea: () => ["dimenhydrinate", "ondansetron", "metoclopramide"],
+  opioid: () => ["naloxone"]
+};
+
+function applyStudyPreset(presetKey) {
+  const builder = STUDY_PRESETS[presetKey];
+  if (!builder) return;
+
+  const ids = builder().filter(id => medications.some(med => med.id === id));
+  studyList = ids;
+  saveStudyList();
+  renderMedications();
+}
+
 function renderMedications() {
   const query = searchInput.value.trim().toLowerCase();
+  const presetsEl = document.getElementById("study-presets");
+  if (presetsEl) {
+    presetsEl.hidden = currentView !== "study-list";
+  }
 
   if (currentView === "pcp085") {
     const upcoming = medications.find(med => med.id === PCP085_UPCOMING_ID);
@@ -435,6 +461,12 @@ document.addEventListener("click", event => {
   const tab = event.target.closest("[data-view]");
   if (tab) {
     showView(tab.dataset.view);
+    return;
+  }
+
+  const presetButton = event.target.closest("[data-preset]");
+  if (presetButton) {
+    applyStudyPreset(presetButton.dataset.preset);
     return;
   }
 
@@ -814,8 +846,53 @@ function resetFlashcardFlip() {
   if (flip) flip.classList.remove("is-flipped");
 }
 
+function applyFlashcardRatingGlow(card) {
+  const flip = document.getElementById("flashcard-flip");
+  if (!flip || !card) return;
+
+  flip.classList.remove("rated-known", "rated-practice");
+
+  const result = flashcardResults[`${card.medication}|${card.category}`];
+  if (result === "known") {
+    flip.classList.add("rated-known");
+  } else if (result === "practice") {
+    flip.classList.add("rated-practice");
+  }
+}
+
+function getFlashcardMasterySummary() {
+  let known = 0;
+  flashcards.forEach(card => {
+    if (flashcardResults[`${card.medication}|${card.category}`] === "known") {
+      known++;
+    }
+  });
+  const total = flashcards.length;
+  const percent = total ? Math.round((known / total) * 100) : 0;
+  return { known, total, percent };
+}
+
+function finishFlashcardDeck() {
+  resetFlashcardFlip();
+  const card = flashcards[currentFlashcardIndex];
+  applyFlashcardRatingGlow(card);
+
+  const { known, total, percent } = getFlashcardMasterySummary();
+  const restart = window.confirm(
+    `You've reached the end of your flashcards!\n\n` +
+      `You've mastered ${percent}% of these cards (${known} of ${total} marked Know It).\n\n` +
+      `Start again from the beginning?`
+  );
+
+  if (restart) {
+    currentFlashcardIndex = 0;
+    showFlashcard();
+  }
+}
+
 function showFlashcard() {
   const card = flashcards[currentFlashcardIndex];
+  if (!card) return;
 
   document.getElementById("flashcard-progress").textContent =
     `Card ${currentFlashcardIndex + 1} of ${flashcards.length}`;
@@ -827,6 +904,7 @@ function showFlashcard() {
     card.answer;
 
   resetFlashcardFlip();
+  applyFlashcardRatingGlow(card);
 
   document.getElementById("flashcard-rating").hidden = true;
   document.getElementById("flashcard-show-answer").hidden = false;
@@ -893,16 +971,18 @@ document.getElementById("flashcard-know-it").addEventListener("click", () => {
   flashcardResults[`${card.medication}|${card.category}`] = "known";
   saveFlashcardResults();
   updateFlashcardStats();
+  applyFlashcardRatingGlow(card);
 
   document.getElementById("flashcard-rating").hidden = true;
   document.getElementById("flashcard-show-answer").hidden = false;
 
   if (currentFlashcardIndex < flashcards.length - 1) {
-    currentFlashcardIndex++;
-    showFlashcard();
+    window.setTimeout(() => {
+      currentFlashcardIndex++;
+      showFlashcard();
+    }, 450);
   } else {
-    resetFlashcardFlip();
-    alert("You've reached the end of your flashcards!");
+    finishFlashcardDeck();
   }
 });
 
@@ -911,16 +991,18 @@ document.getElementById("flashcard-need-practice").addEventListener("click", () 
   flashcardResults[`${card.medication}|${card.category}`] = "practice";
   saveFlashcardResults();
   updateFlashcardStats();
+  applyFlashcardRatingGlow(card);
 
   document.getElementById("flashcard-rating").hidden = true;
   document.getElementById("flashcard-show-answer").hidden = false;
 
   if (currentFlashcardIndex < flashcards.length - 1) {
-    currentFlashcardIndex++;
-    showFlashcard();
+    window.setTimeout(() => {
+      currentFlashcardIndex++;
+      showFlashcard();
+    }, 450);
   } else {
-    resetFlashcardFlip();
-    alert("You've reached the end of your flashcards!");
+    finishFlashcardDeck();
   }
 });
 

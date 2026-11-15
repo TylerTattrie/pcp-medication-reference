@@ -55,6 +55,23 @@
         <h2 id="list-heading">Medication Library</h2>
         <span id="result-count"></span>
       </div>
+
+      <div id="study-presets" class="study-presets" hidden>
+        <h3>Quick study lists</h3>
+        <p>Each button replaces your current study list with that set only.</p>
+        <div class="study-preset-buttons">
+          <button type="button" class="study-preset-btn" data-preset="upcoming">Upcoming Test</button>
+          <button type="button" class="study-preset-btn" data-preset="completed">All Known Drugs</button>
+          <button type="button" class="study-preset-btn" data-preset="pain">Pain Treatment</button>
+          <button type="button" class="study-preset-btn" data-preset="blood-sugar">Blood Sugar</button>
+          <button type="button" class="study-preset-btn" data-preset="respiratory">Respiratory</button>
+          <button type="button" class="study-preset-btn" data-preset="allergic">Allergic Reactions</button>
+          <button type="button" class="study-preset-btn" data-preset="cardiac">Cardiac</button>
+          <button type="button" class="study-preset-btn" data-preset="nausea">Nausea</button>
+          <button type="button" class="study-preset-btn" data-preset="opioid">Opioid Overdose</button>
+        </div>
+      </div>
+
       <div id="medication-list"></div>
       <p id="empty-message" class="empty-message" hidden>No matching medications found.</p>
     </section>
@@ -81,18 +98,16 @@
   <h3>Choose what to study</h3>
   <p>Flashcards will use medications in My Study List only.</p>
 
-  <div class="flashcard-options">
-    <label><input type="checkbox" value="otherNames" checked> Other names</label>
-    <label><input type="checkbox" value="classifications" checked> Classifications</label>
-    <label><input type="checkbox" value="mechanism" checked> Mechanism of action</label>
-    <label><input type="checkbox" value="indications" checked> Indications</label>
-    <label><input type="checkbox" value="contraindications" checked> Contraindications</label>
-    <label><input type="checkbox" value="adverseEffects" checked> Adverse effects</label>
-    <label><input type="checkbox" value="precautions" checked> Precautions</label>
-    <label><input type="checkbox" value="dosage" checked> Dosage</label>
-    <label><input type="checkbox" value="routes" checked> Routes</label>
-    
-    
+  <div class="flashcard-options category-toggle-group">
+    <label class="category-toggle"><input type="checkbox" value="otherNames" checked><span>Other names</span></label>
+    <label class="category-toggle"><input type="checkbox" value="classifications" checked><span>Classifications</span></label>
+    <label class="category-toggle"><input type="checkbox" value="mechanism" checked><span>Mechanism of action</span></label>
+    <label class="category-toggle"><input type="checkbox" value="indications" checked><span>Indications</span></label>
+    <label class="category-toggle"><input type="checkbox" value="contraindications" checked><span>Contraindications</span></label>
+    <label class="category-toggle"><input type="checkbox" value="adverseEffects" checked><span>Adverse effects</span></label>
+    <label class="category-toggle"><input type="checkbox" value="precautions" checked><span>Precautions</span></label>
+    <label class="category-toggle"><input type="checkbox" value="dosage" checked><span>Dosage</span></label>
+    <label class="category-toggle"><input type="checkbox" value="routes" checked><span>Routes</span></label>
   </div>
 
   <button id="start-flashcards" class="primary-button">
